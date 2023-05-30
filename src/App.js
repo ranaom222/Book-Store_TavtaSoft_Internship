@@ -7,11 +7,13 @@ import LoginPg from "./Pages/LoginPg";
 import ProductPg from "./Pages/ProductPg";
 import RegPg from "./Pages/RegPg";
 import CartPg from "./Pages/CartPg";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <>
       <BrowserRouter>
+      <ToastContainer/>
         <Header />
         <Searchbar />
         <Routes>
