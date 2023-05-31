@@ -27,7 +27,20 @@ function HomePg() {
   const sortBy = () => {};
   return (
     <div className="">
-      <Typography variant="h4">Book Listing</Typography>
+      <Typography
+        variant="h4"
+        sx={{
+          display: "flex",
+          marginTop: "50px",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        Book Listing
+      </Typography>
+      <div className="flex items-center justify-center m-6">
+        <div className="border-t-2 border-[#f14d54] w-32"></div>
+      </div>
       <Grid>
         <Grid item xs={6}>
           <Typography>
@@ -61,8 +74,8 @@ function HomePg() {
       <div>
         <img src="../assets/logo.jpg" alt="Book image" />
         <Typography>Book Name</Typography>
-        <span>Book Categari</span>
-        <p>desc</p>
+        <span>Book Categories</span>
+        <p>Description</p>
         <p>
           <span>MRP{100}</span>
         </p>
