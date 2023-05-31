@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Footer from "./Components/Footer";
 import Header from "./Components/Header";
+import Searchbar from "./Components/SearchBar";
 import { AuthWarpper } from "./context/auth";
 
 import MyNavigation from "./MyNavigation";
@@ -12,7 +13,7 @@ function App() {
       <AuthWarpper>
         <ToastContainer />
         <Header />
-        <Searchbar />
+        <Searchbar/>
         <MyNavigation />
         <Footer />
       </AuthWarpper>
