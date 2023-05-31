@@ -70,3 +70,4 @@ import {
   }
   
   export default ProductPg;
+ 
