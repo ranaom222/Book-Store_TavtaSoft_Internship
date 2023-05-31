@@ -85,7 +85,17 @@ function Header() {
           >
             {0} cart
           </Button>
+          <Button
+            variant="contained"
+            sx={{ color: "white", textTransform: "capitalize" }}
+            onClick={() => {
+              navigate("/product-page");
+            }}
+          >
+            Product-Page
+          </Button>
           {authContext.user.id ? (
+           
             <Button
               variant="contained"
               sx={{
