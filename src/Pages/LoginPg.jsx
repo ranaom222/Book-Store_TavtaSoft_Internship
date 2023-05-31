@@ -15,9 +15,12 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import authService from "../service/auth.service";
 import { toast, ToastContainer } from "react-toastify";
+import { useAuthContext } from "../context/auth";
 
 function LoginPg() {
   const navigate = useNavigate();
+  const authContext = useAuthContext();
+
   const initialValues = {
     email: "",
     password: "",
@@ -31,14 +34,14 @@ function LoginPg() {
 
   const onSubmit = (values) => {
     // alert(JSON.stringify(values));
-      authService.login(values)
+    authService
+      .login(values)
       .then((res) => {
         delete res._id;
         delete res.__v;
-        setTimeout(() => {
-          toast.success("Successfully logged in");
-        }, 3000);
+        authContext.setUser(res);
         navigate("/");
+        toast.success("successfully logged in");
       })
       .catch((err) => {
         console.log(err);
@@ -92,7 +95,7 @@ function LoginPg() {
             }}
           />
           <Typography variant="body2" sx={{ marginTop: "20px" }}>
-            Registeration is free and easy.
+            Registration is free and easy.
           </Typography>
 
           <ul className="list-disc mt-5 ml-5">

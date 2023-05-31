@@ -60,10 +60,11 @@ function RegPg() {
     // alert(JSON.stringify(values));
     authService
       .create(values)
-      .then((_res) => {
+      .then((res) => {
         setTimeout(() => {
-          toast.success("Successfully Registered !");
-        }, 3000);
+          toast.success("Succesfully Registered");
+        }, 2000);
+
         navigate("/login");
       })
       .catch((err) => {
@@ -78,17 +79,18 @@ function RegPg() {
       .then((res) => {
         setRoleList(res);
       })
-      .catch();
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
     getRoles();
   }, []);
-  console.log(roleList);
+
   return (
     <div className="">
       <ToastContainer />
-      
       <Breadcrumbs
         separator={<NavigateNextIcon fontSize="small" />}
         aria-label="breadcrumb"
@@ -142,7 +144,7 @@ function RegPg() {
           isSubmitting,
         }) => (
           <form onSubmit={handleSubmit} className="flex-1 ml-40 mr-40">
-            <div className="grid grid-cols-2 gap-20 mt-5 ">
+            <div className="grid grid-cols-2 gap-5 mt-5 ">
               <FormControl fullWidth>
                 <label>First Name*</label>
                 <TextField
@@ -217,7 +219,7 @@ function RegPg() {
               Login Information
             </Typography>
             <Divider />
-            <div className="grid grid-cols-2 gap-20 mt-5 ">
+            <div className="grid grid-cols-2 gap-5 mt-5 ">
               <FormControl fullWidth>
                 <label>Password*</label>
                 <TextField
@@ -268,7 +270,6 @@ function RegPg() {
           </form>
         )}
       </Formik>
-      
     </div>
   );
 }
