@@ -22,7 +22,7 @@ const initialState = {
 
 const authContext = createContext(initialState);
 
-export const AuthWarpper = ({ children }) => {
+export const AuthWrapper = ({ children }) => {
   const [user, _setUser] = useState(intialUserValue);
   const navigate = useNavigate();
   const { pathname } = useLocation();

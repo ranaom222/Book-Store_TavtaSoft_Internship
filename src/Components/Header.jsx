@@ -20,6 +20,7 @@ function Header() {
         !item.access.length || item.access.includes(authContext.user.roleId)
     );
   }, [authContext.user]);
+
   return (
     <>
       <div className="flex justify-between items-center bg-white border-t-8 border-[#f14d54]">
@@ -85,17 +86,7 @@ function Header() {
           >
             {0} cart
           </Button>
-          <Button
-            variant="contained"
-            sx={{ color: "white", textTransform: "capitalize" }}
-            onClick={() => {
-              navigate("/product-page");
-            }}
-          >
-            Product-Page
-          </Button>
-          {authContext.user.id ? (
-           
+          {!!authContext.user.id ? (
             <Button
               variant="contained"
               sx={{

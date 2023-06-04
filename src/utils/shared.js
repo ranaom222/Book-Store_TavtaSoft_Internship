@@ -16,18 +16,18 @@ const LocalStorageKeys = {
 const NavigationItems = [
   {
     name: "Users",
-    route: "/User",
-    access: [Role.Admin, Role.Seller],
+    route: "/users",
+    access: [Role.Admin,Role.Buyer, Role.Seller],
   },
   {
     name: "Categories",
     route: "/categories",
-    access: [Role.Admin, Role.Seller],
+    access: [Role.Admin,Role.Buyer ,Role.Seller],
   },
   {
-    name: "Books",
+    name: "Book",
     route: "/book",
-    access: [Role.Admin, Role.Seller],
+    access: [Role.Admin, Role.Buyer,Role.Seller],
   },
   {
     name: "Update Profile",
@@ -43,7 +43,7 @@ const hasAccess = (pathname, user) => {
   if (navItem) {
     return (
       !navItem.access ||
-      !!(navItem.access && navItem.access.includes(user.RoleId))
+      !!(navItem.access && navItem.access.includes(user.roleId))
     );
   }
   return true;
