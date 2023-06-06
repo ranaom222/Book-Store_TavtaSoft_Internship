@@ -5,17 +5,21 @@ import Header from "./Components/Header";
 import Searchbar from "./Components/Searchbar";
 import { AuthWrapper } from "./context/auth";
 
+
 import MyNavigation from "./MyNavigation";
+import { CartWrapper } from "./context/cart";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthWrapper>
+        <CartWrapper>
         <ToastContainer />
         <Header />
         <Searchbar/>
         <MyNavigation />
         <Footer />
+        </CartWrapper>
       </AuthWrapper>
     </BrowserRouter>
   );

@@ -3,8 +3,17 @@ import React, { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import bookService from "../service/book.service";
 
+import shared from "../utils/shared";
+import {toast} from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../context/auth";
+import { useCartContext } from "../context/cart";
+
 export default function Searchbar() {
   const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const authContext = useAuthContext();
+  const cartContext = useCartContext();
   const [bookList, setBookList] = useState([]);
   const [openSearchResult, setOpenSearchResult] = useState(false);
   const searchBook = async () => {
@@ -14,6 +23,22 @@ export default function Searchbar() {
   const search = () => {
     searchBook();
     setOpenSearchResult(true);
+  };
+
+  const addToCart = (book) => {
+    if (!authContext.user.id) {
+      navigate("LoginPg");
+      toast.error("Please login before adding books to cart");
+    } else {
+      shared.addToCart(book, authContext.user.id).then((res) => {
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          toast.success("Item added in cart");
+          cartContext.updateCart();
+        }
+      });
+    }
   };
 
   return (
@@ -61,6 +86,7 @@ export default function Searchbar() {
                       <div className=" text-right ml-4">
                         <p>{item.price}</p>
                         <Button
+                         onClick={()=>addToCart(item)}
                           sx={{
                             color: "#f14d54",
                             textTransform: "capitalize",

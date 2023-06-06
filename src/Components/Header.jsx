@@ -1,15 +1,17 @@
-import { Button, Divider, Link, ListItem } from "@mui/material";
+import { Button, Divider} from "@mui/material";
 import React, { useMemo } from "react";
-
 import logo from "../assets/logo.jpg";
 import { HiShoppingCart } from "react-icons/hi";
-
+import { useCartContext } from "../context/cart";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/auth";
 import shared from "../utils/shared";
+import { toast } from "react-toastify";
+
 function Header() {
   const navigate = useNavigate();
   const authContext = useAuthContext();
+  const cartContext = useCartContext();
   const logOut = () => {
     authContext.signOut();
   };
@@ -81,10 +83,10 @@ function Header() {
             }}
             startIcon={<HiShoppingCart />}
             onClick={() => {
-              navigate("/cart-page");
+              navigate("/cart-page") && toast.success("not allowed, first login !");
             }}
           >
-            {0} cart
+            {cartContext.cartData.length} cart
           </Button>
           {!!authContext.user.id ? (
             <Button

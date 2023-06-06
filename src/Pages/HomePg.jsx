@@ -1,16 +1,21 @@
 import { Button, Pagination, TextField, Typography } from "@mui/material";
 import React, { useMemo, useState } from "react";
 
+import {toast} from "react-toastify";
 import { useEffect } from "react";
 import { defaultFilter } from "../utils/constant";
-
+import shared from "../utils/shared";
 import bookService from "../service/book.service";
 import categoryService from "../service/category.service";
+import { useAuthContext } from "../context/auth";
+import { useCartContext } from "../context/cart";
 
 function HomePg() {
   const [filters, setFilters] = useState(defaultFilter);
   const [categories, setCategories] = useState([]);
   const [sortBy, setSortBy] = useState();
+  const authContext = useAuthContext();
+  const cartContext = useCartContext();
   const [bookResponse, setBookResponse] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -57,6 +62,17 @@ function HomePg() {
     }
     return [];
   }, [categories, bookResponse]);
+
+  const addToCart = (book) => {
+    shared.addToCart(book, authContext.user.id).then((res) => {
+      if (res.error) {
+        toast.error(res.message);
+      } else {
+        toast.success(res.message);
+        cartContext.updateCart();
+      }
+    });
+  };
 
   const sortBook = (e) => {
     setSortBy(e.target.value);
@@ -162,6 +178,7 @@ function HomePg() {
               </p>
               <Button
                 variant="contained"
+                onClick={()=>addToCart(book)}
                 sx={{
                   color: "white",
                   backgroundColor: "#f14d54",
