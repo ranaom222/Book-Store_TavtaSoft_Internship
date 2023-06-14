@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { cartStyle } from "./CartStyle";
-import { Typography, Button, Link } from "@mui/material";
-import cartService from "../service/cart.service";
-import { useAuthContext } from "../context/auth";
 import { toast } from "react-toastify";
-import orderService from "../service/order.service";
-import { useCartContext } from "../context/cart";
 import { useNavigate } from "react-router-dom";
+import cartService from "../service/cart.service";
+import { Button, Typography } from "@mui/material";
 import shared from "../utils/shared";
+import orderService from "../service/order.service";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchCartData, removeFromCart } from "../state/slice/cartSlice";
+import { setCartData } from "../state/slice/cartSlice";
 
-const CartPg = () => {
-  const authContext = useAuthContext();
-  const cartContext = useCartContext();
+const CartPage = () => {
+  const dispatch = useDispatch();
+  const cartData = useSelector((state) => state.cart.cartData);
   const navigate = useNavigate();
-
+  const authData = useSelector((state) => state.auth.user);
   const [cartList, setCartList] = useState([]);
   const [itemsInCart, setItemsInCart] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-
-  const classes = cartStyle();
 
   const getTotalPrice = (itemList) => {
     let totalPrice = 0;
@@ -30,22 +28,22 @@ const CartPg = () => {
   };
 
   useEffect(() => {
-    setCartList(cartContext.cartData);
-    setItemsInCart(cartContext.cartData.length);
-    getTotalPrice(cartContext.cartData);
-  }, [cartContext.cartData]);
+    setCartList(cartData);
+    setItemsInCart(cartData.length);
+    getTotalPrice(cartData);
+  }, [cartData]);
 
   const removeItem = async (id) => {
     try {
       const res = await cartService.removeItem(id);
       if (res) {
-        cartContext.updateCart();
+        dispatch(removeFromCart(id)); // Dispatch the action to remove item from cart
       }
     } catch (error) {
       toast.error("Something went wrong!");
     }
   };
-
+  
   const updateQuantity = async (cartItem, inc) => {
     const currentCount = cartItem.quantity;
     const quantity = inc ? currentCount + 1 : currentCount - 1;
@@ -65,7 +63,7 @@ const CartPg = () => {
         const updatedCartList = cartList.map((item) =>
           item.id === cartItem.id ? { ...item, quantity } : item
         );
-        cartContext.updateCart(updatedCartList);
+        dispatch(setCartData(updatedCartList)); // Dispatch the action to update cart data in the Redux store
         const updatedPrice =
           totalPrice +
           (inc
@@ -79,18 +77,18 @@ const CartPg = () => {
   };
 
   const placeOrder = async () => {
-    if (authContext.user.id) {
-      const userCart = await cartService.getList(authContext.user.id);
+    if (authData.id) {
+      const userCart = await cartService.getList(authData.id);
       if (userCart.length) {
         try {
           let cartIds = userCart.map((element) => element.id);
           const newOrder = {
-            userId: authContext.user.id,
+            userId: authData.id,
             cartIds,
           };
           const res = await orderService.placeOrder(newOrder);
           if (res) {
-            cartContext.updateCart();
+            dispatch(fetchCartData(authData.id)); // Dispatch the action to fetch updated cart data
             navigate("/");
             toast.success(shared.messages.ORDER_SUCCESS);
           }
@@ -104,8 +102,7 @@ const CartPg = () => {
   };
 
   return (
-    <div className={classes.cartWrapper}>
-      <div className="container">
+    <div className="flex-1 ml-96 mr-96 px-16">
       <Typography
         variant="h4"
         sx={{
@@ -119,90 +116,135 @@ const CartPg = () => {
       >
         Cart Page
       </Typography>
-      <center>
-          <hr
-            style={{
-              background: "red",
-              color: "red",
-              borderColor: "red",
-              height: "4px",
-              marginInline: "30px",
-              width: "200px",
-            }}
-          />
-        </center>
-        <br></br>
-        <br></br>
-        <div className="cart-heading-block">
-          <Typography variant="h2">
-            My Shopping Bag ({itemsInCart} Items)
-          </Typography>
-          <div className="total-price">Total price: {totalPrice}</div>
-        </div>
-        <div className="cart-list-wrapper">
-          {cartList.map((cartItem) => {
-            return (
-              <div className="cart-list-item" key={cartItem.id}>
-                <div className="cart-item-img">
-                  <Link>
-                    <img src={cartItem.book.base64image} alt="dummy-pic" />
-                  </Link>
+      <div className="flex items-center justify-center m-6">
+        <div className="border-t-2 border-[#f14d54] w-32"></div>
+      </div>
+      <div className="flex font-semibold justify-between">
+        <Typography variant="h6">
+          My Shopping Bag ({itemsInCart} Items)
+        </Typography>
+        <span>Total price: {totalPrice}</span>
+      </div>
+      <div className="flex-1 mt-5">
+        {cartList.map((cartItem) => {
+          return (
+            <div
+              className="flex border border-gray-00 rounded-md shadow-lg p-5 mt-4"
+              key={cartItem.id}
+            >
+              <div className="w-32 h-40 overflow-hidden rounded-sm">
+                <img
+                  src={cartItem.book.base64image}
+                  alt="BookImage"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="flex">
+                <div className="flex-1 ml-5">
+                  <p className="brand text-xl font-semibold">
+                    {cartItem.book.name}
+                  </p>
+                  <p className="text-[#f14d54] mt-2">Cart item name</p>
+
+                  <div className="flex mt-16">
+                    <Button
+                      sx={{
+                        color: "white",
+                        backgroundColor: "#f14d54",
+                        "&:hover": {
+                          backgroundColor: "#f14d54", // Change the hover background color
+                        },
+                        fontWeight: "bold",
+                      }}
+                      size="small"
+                      onClick={() => updateQuantity(cartItem, true)}
+                    >
+                      +
+                    </Button>
+                    <span className="border border-gray-400 inline-block w-8 text-center leading-8 mx-2">
+                      {cartItem.quantity}
+                    </span>
+                    <Button
+                      sx={{
+                        color: "white",
+                        backgroundColor: "#f14d54",
+                        "&:hover": {
+                          backgroundColor: "#f14d54", // Change the hover background color
+                        },
+                        fontWeight: "bold",
+                      }}
+                      size="small"
+                      onClick={() => updateQuantity(cartItem, false)}
+                    >
+                      -
+                    </Button>
+                  </div>
                 </div>
-                <div className="cart-item-content">
-                  <div className="cart-item-top-content">
-                    <div className="cart-item-left">
-                      <p className="brand">{cartItem.book.name}</p>
-                      <Link>Cart item name</Link>
-                    </div>
-                    <div className="price-block">
-                      <span className="current-price">
-                        MRP &#8377; {cartItem.book.price}
-                      </span>
-                    </div>
+                <div className="flex-1 ml-40">
+                  <div>
+                    <span className="current-price font-semibold text-right">
+                      MRP &#8377; {cartItem.book.price}
+                    </span>
                   </div>
-                  <div className="cart-item-bottom-content">
-                    <div className="qty-group">
-                      <Button
-                        className="btn pink-btn"
-                        onClick={() => updateQuantity(cartItem, true)}
-                      >
-                        +
-                      </Button>
-                      <span className="number-count">{cartItem.quantity}</span>
-                      <Button
-                        className="btn pink-btn"
-                        onClick={() => updateQuantity(cartItem, false)}
-                      >
-                        -
-                      </Button>
-                    </div>
-                    <Link onClick={() => removeItem(cartItem.id)}>Remove</Link>
-                  </div>
+                  <Button
+                    variant="text"
+                    sx={{
+                      color: "#f14d54",
+                      textTransform: "capitalize",
+                      marginTop: "100px",
+                    }}
+                    onClick={() => removeItem(cartItem.id)}
+                  >
+                    Remove
+                  </Button>
                 </div>
               </div>
-            );
-          })}
-        </div>
-        <div className="btn-wrapper">
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex justify-between">
+        <div className="flex-1">
           <Button
-                  variant="contained"
-                  onClick={placeOrder}
-                  sx={{
-                    color: "white",
-                    backgroundColor: "#f14d54",
-                    "&:hover": {
-                      backgroundColor: "#f14d54",
-                    },
-                    marginLeft: "8px",
-                    width: "100px",
-                  }}
-                >
-                  Place Order
-                </Button>
+            variant="contained"
+            sx={{
+              color: "white",
+              backgroundColor: "#f14d54",
+              "&:hover": {
+                backgroundColor: "#f14d54", // Change the hover background color
+              },
+              marginTop: "50px",
+              textTransform: "capitalize",
+              fontWeight: "bold",
+            }}
+            onClick={placeOrder}
+          >
+            Place order
+          </Button>
+        </div>
+        <div className="flex-1">
+          <Button
+            variant="contained"
+            sx={{
+              color: "white",
+              backgroundColor: "#f14d54",
+              "&:hover": {
+                backgroundColor: "#f14d54", // Change the hover background color
+              },
+              marginTop: "50px",
+              textTransform: "capitalize",
+              fontWeight: "bold",
+            }}
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Continue Shopping
+          </Button>
         </div>
       </div>
     </div>
   );
 };
 
-export default CartPg;
+export default CartPage;

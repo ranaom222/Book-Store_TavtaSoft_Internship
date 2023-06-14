@@ -1,6 +1,5 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useAuthContext } from "./context/auth";
 import CartPg from "./Pages/CartPg";
 import HomePg from "./Pages/HomePg";
 import LoginPg from "./Pages/LoginPg";
@@ -12,56 +11,57 @@ import Users from "./Pages/Users";
 import Categories from "./Pages/Categories";
 import AddCategory from "./Pages/AddCategory";
 import EditUser from "./Pages/EditUser";
+import { useSelector } from "react-redux";
 
 function MyNavigation() {
-  const authContext = useAuthContext();
+  const authData = useSelector((state) => state.auth.user);
 
   const Redirect = <Navigate to={"/login"} />;
   return (
     <Routes>
-      <Route path="/" element={authContext.user.id ? <HomePg /> : Redirect} />
+      <Route path="/" element={authData.id ? <HomePg /> : Redirect} />
       <Route path="/login" element={<LoginPg />} />
       <Route
         path="/register"
-        element={!authContext.user.id ? <RegPg /> : Redirect}
+        element={!authData.id ? <RegPg /> : Redirect}
       />
       <Route
         path="/update-profile"
-        element={authContext.user.id ? <UpdateProfile /> : Redirect}
+        element={authData.id ? <UpdateProfile /> : Redirect}
       />
-      <Route path="/book" element={authContext.user.id ? <Book /> : Redirect} />
+      <Route path="/book" element={authData.id ? <Book /> : Redirect} />
       <Route
         path="/add-book"
-        element={authContext.user.id ? <AddBook /> : Redirect}
+        element={authData.id ? <AddBook /> : Redirect}
       />
-      <Route path="/users" element={authContext.user.id ? <Users /> : Redirect} />
+      <Route path="/users" element={authData.id ? <Users /> : Redirect} />
       <Route
         path="/edit-user"
-        element={authContext.user.id ? <EditUser /> : Redirect}
+        element={authData.id ? <EditUser /> : Redirect}
       />
        <Route
         path="/edit-user/:id"
-        element={authContext.user.id ? <EditUser /> : Redirect}
+        element={authData.id ? <EditUser /> : Redirect}
       />
       <Route
         path="/categories"
-        element={authContext.user.id ? <Categories /> : Redirect}
+        element={authData.id ? <Categories /> : Redirect}
       />
       <Route
         path="/add-category"
-        element={authContext.user.id ? <AddCategory /> : Redirect}
+        element={authData.id ? <AddCategory /> : Redirect}
       />
       <Route
         path="/add-category/:id"
-        element={authContext.user.id ? <AddCategory /> : Redirect}
+        element={authData.id ? <AddCategory /> : Redirect}
       />
       <Route
         path="/add-book/:id"
-        element={authContext.user.id ? <AddBook /> : Redirect}
+        element={authData.id ? <AddBook /> : Redirect}
       />
       <Route
         path="/cart-page"
-        element={authContext.user.id ? <CartPg /> : Redirect}
+        element={authData.id ? <CartPg /> : Redirect}
       />
     </Routes>
   );

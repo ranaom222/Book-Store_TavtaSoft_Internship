@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+/*import React, { createContext, useContext, useEffect, useState } from "react";
 import cartService from "../service/cart.service";
 import { useAuthContext } from "./auth";
 
@@ -43,3 +43,4 @@ export const CartWrapper = ({ children }) => {
 export const useCartContext = () => {
   return useContext(cartContext);
 };
+*/

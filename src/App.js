@@ -1,26 +1,29 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Footer from "./Components/Footer";
 import Header from "./Components/Header";
 import Searchbar from "./Components/Searchbar";
-import { AuthWrapper } from "./context/auth";
-
-
 import MyNavigation from "./MyNavigation";
-import { CartWrapper } from "./context/cart";
+import { Provider } from "react-redux";
+import store from "./state/store";
+import { loadIcon } from "./assets";
+import "./App.css";
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthWrapper>
-        <CartWrapper>
+     <Provider store={store}>
         <ToastContainer />
+        <div>
+          <div className="loader-wrapper" id="load">
+            <img src={loadIcon} alt="Loading..." />
+          </div>
+        </div>
         <Header />
         <Searchbar/>
         <MyNavigation />
         <Footer />
-        </CartWrapper>
-      </AuthWrapper>
+      </Provider>
     </BrowserRouter>
   );
 }

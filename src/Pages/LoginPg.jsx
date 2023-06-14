@@ -6,20 +6,38 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-
+import { Link, useNavigate,useLocation } from "react-router-dom";
 import { TextField } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-
 import { Formik } from "formik";
 import * as Yup from "yup";
 import authService from "../service/auth.service";
 import { toast, ToastContainer } from "react-toastify";
-import { useAuthContext } from "../context/auth";
+import { useDispatch,useSelector } from "react-redux";
+import { setUser } from "../state/slice/authSlice";
+import { useEffect} from "react";
+import shared from "../utils/shared";
 
 function LoginPg() {
   const navigate = useNavigate();
-  const authContext = useAuthContext();
+  const { pathname } = useLocation();
+  const authData = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+
+
+  useEffect(() => {
+    const str = JSON.parse(localStorage.getItem("user"));
+    if (str?.id) {
+      dispatch(setUser(str));
+      navigate("/");
+    }
+    const access = shared.hasAccess(pathname, authData);
+    if (!access) {
+      toast.warning("Sorry, you are not authorized to access this page !");
+      navigate("/");
+      return;
+    }
+  }, []);
 
   const initialValues = {
     email: "",
@@ -33,15 +51,14 @@ function LoginPg() {
   });
 
   const onSubmit = (values) => {
-    // alert(JSON.stringify(values));
     authService
       .login(values)
       .then((res) => {
         delete res._id;
         delete res.__v;
-        authContext.setUser(res);
+        dispatch(setUser(res));
         navigate("/");
-        toast.success("successfully logged in");
+        toast.success("Successfully logged in");
       })
       .catch((err) => {
         console.log(err);

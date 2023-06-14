@@ -1,34 +1,45 @@
-import { Button, Divider} from "@mui/material";
-import React, { useMemo } from "react";
+import { Button, Divider } from "@mui/material";
+import React, { useEffect, useMemo } from "react";
 import logo from "../assets/logo.jpg";
 import { HiShoppingCart } from "react-icons/hi";
-import { useCartContext } from "../context/cart";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../context/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCartData } from "../state/slice/cartSlice";
+import { signOut } from "../state/slice/authSlice";
 import shared from "../utils/shared";
-import { toast } from "react-toastify";
 
-function Header() {
+const Header = () => {
   const navigate = useNavigate();
-  const authContext = useAuthContext();
-  const cartContext = useCartContext();
+  const dispatch = useDispatch();
+  const cartData = useSelector((state) => state.cart.cartData);
+  const authData = useSelector((state) => state.auth.user);
+
   const logOut = () => {
-    authContext.signOut();
+    // authContext.signOut();
+    dispatch(signOut());
   };
+
+  useEffect(() => {
+    const userId = authData.id;
+
+    if (userId && cartData.length === 0) {
+      dispatch(fetchCartData(userId));
+    }
+  }, [authData.id, cartData.length, dispatch]);
 
   const items = useMemo(() => {
     return shared.NavigationItems.filter(
-      (item) =>
-        !item.access.length || item.access.includes(authContext.user.roleId)
+      (item) => !item.access.length || item.access.includes(authData.roleId)
     );
-  }, [authContext.user]);
+  }, [authData]);
 
   return (
     <>
       <div className="flex justify-between items-center bg-white border-t-8 border-[#f14d54]">
         <img src={logo} alt="TatvaSoft_Logo" className="h-24 ml-40 w-44" />
+
         <div className="mr-40  space-x-1 flex">
-          {!authContext.user.id && (
+          {!authData.id && (
             <>
               <Button
                 variant="text"
@@ -60,19 +71,28 @@ function Header() {
             </>
           )}
           {items.map((item, index) => (
-            <Button
-              key={index}
-              variant="text"
-              sx={{
-                color: "#f14d54",
-                textTransform: "capitalize",
-              }}
-              onClick={() => {
-                navigate(item.route);
-              }}
-            >
-              {item.name}
-            </Button>
+            <div key={`${item.name}-${item.route}-${index}`} className="flex">
+              <Button
+                variant="text"
+                sx={{
+                  color: "#f14d54",
+                  textTransform: "capitalize",
+                }}
+                onClick={() => {
+                  navigate(item.route);
+                }}
+              >
+                {item.name}
+              </Button>
+              {index !== items.length - 1 && (
+                <Divider
+                  orientation="vertical"
+                  variant="middle"
+                  flexItem
+                  sx={{ backgroundColor: "#f14d54" }}
+                />
+              )}
+            </div>
           ))}
           <Button
             variant="outlined"
@@ -80,19 +100,28 @@ function Header() {
               color: "#f14d54",
               borderColor: "#f14d54",
               textTransform: "capitalize",
+              fontWeight: "bold",
             }}
             startIcon={<HiShoppingCart />}
             onClick={() => {
-              navigate("/cart-page") && toast.success("not allowed, first login !");
+              navigate("/cart-page");
             }}
           >
-            {cartContext.cartData.length} cart
+            {cartData.length}
+            <span
+              style={{
+                color: "black",
+                marginLeft: "4px",
+                fontWeight: "normal",
+              }}
+            >
+              cart
+            </span>
           </Button>
-          {!!authContext.user.id ? (
+          {!!authData.id ? (
             <Button
               variant="contained"
               sx={{
-                // color: "black",
                 backgroundColor: "#f14d54",
                 "&:hover": {
                   backgroundColor: "#f14d54", // Change the hover background color
@@ -110,6 +139,6 @@ function Header() {
       </div>
     </>
   );
-}
+};
 
 export default Header;

@@ -8,19 +8,23 @@ import React, {useState } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
-import {useAuthContext } from "../context/auth";
 import { toast } from "react-toastify";
 import userService from "../service/user.service";
+import { useDispatch,useSelector } from "react-redux";
+import { setUser } from "../state/slice/authSlice";
+import shared from "../utils/shared";
+
 
 function UpdateProfile() {
-  const authContext = useAuthContext();
+  
   const navigate = useNavigate();
-  const {user} = useAuthContext();
+  const dispatch = useDispatch();
+  const authData = useSelector((state) => state.auth.user);
 
   const initialValueState = {
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
+    email: authData.email,
+    firstName: authData.firstName,
+    lastName: authData.lastName,
     newPassword: "",
     confirmPassword: "",
   };
@@ -33,26 +37,27 @@ function UpdateProfile() {
       .required("Email is required"),
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
-    newPassword: Yup.string().min(5, "Minimum 5 charactor is required"),
+    newPassword: Yup.string().min(5, "Minimum 5 character is required"),
     confirmPassword: updatePassword
       ? Yup.string()
           .required("Must required")
-          .oneOf([Yup.ref("newPassword")], "Passwords is not match")
-      : Yup.string().oneOf([Yup.ref("newPassword")], "Passwords is not match"),
+          .oneOf([Yup.ref("newPassword")], "Password does not match")
+      : Yup.string().oneOf([Yup.ref("newPassword")], "Password does not match"),
   });
 
   const onSubmit = async (values) => {
-    const password = values.newPassword ? values.newPassword : user.password;
+    const password = values.newPassword ? values.newPassword : authData.password;
     delete values.confirmPassword;
     delete values.newPassword;
-
-    const data = Object.assign(user, { ...values, password });
-    delete data._id;
-    delete data.__v;
-    const res = await userService.updateProfile(data);
+    const updatedData = {
+      ...authData,
+      ...values,
+      password,
+    };
+    const res = await userService.updateProfile(updatedData);
     if (res) {
-      authContext.setUser(res);
-      toast.success("Updation Successfull !");
+      dispatch(setUser(res));
+      toast.success(shared.messages.UPDATED_SUCCESS);
       navigate("/");
     }
   };

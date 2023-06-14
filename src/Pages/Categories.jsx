@@ -11,15 +11,16 @@ import {
   TablePagination,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-
 import { defaultFilter, RecordsPerPage } from "../utils/constant";
 import categoryService from "../service/category.service";
 import { useNavigate } from "react-router-dom";
 import ConfirmationDialog from "../Components/ConfirmationDialog";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+
 function Categories() {
   const [filters, setFilters] = useState(defaultFilter);
-  const [categories, setCategories] = useState([]);
+  const authData = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(0);
   const navigate = useNavigate();
@@ -31,23 +32,12 @@ function Categories() {
     totalItems: 0,
   });
 
-  useEffect(() => {
-    getAllCategories();
-  }, []);
-  const getAllCategories = async () => {
-    await categoryService.getAll().then((res) => {
-      if (res) {
-        setCategories(res);
-      }
-    });
-  };
-
   const searchAllCategories = (filters) => {
     categoryService.getAll(filters).then((res) => {
       setCategoryRecords(res);
     });
   };
-  // console.log("Catt : ", bookRecords);
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       if (filters.keyword === "") delete filters.keyword;
@@ -56,7 +46,6 @@ function Categories() {
     return () => clearTimeout(timer);
   }, [filters]);
 
-  // console.log(bookRecords);
   const columns = [{ id: "Category", label: "Category Name", minWidth: 100  }];
 
   const onConfirmDelete = () => {
@@ -147,7 +136,7 @@ function Categories() {
       </TableHead>
       <TableBody sx={{ marginTop: "20px" }}>
         {categoryRecords?.items?.map((row, index) => (
-          <TableRow key={row.id}>
+          <TableRow key={`${row.id}-${index}`}>
             <TableCell>
               {row.name}
             </TableCell>
@@ -167,6 +156,7 @@ function Categories() {
               >
                 <b>Edit</b>
               </Button>
+              {row.id !== authData.id && (
               <Button
                 variant="contained"
                 size="small"
@@ -178,6 +168,7 @@ function Categories() {
               >
                 <b>Delete</b>
               </Button>
+              )}
             </TableCell>
           </TableRow>
         ))}
@@ -198,7 +189,7 @@ function Categories() {
   <TablePagination
     rowsPerPageOptions={RecordsPerPage}
     component="div"
-    count={categoryRecords.totalItems}
+    count={categoryRecords?.totalItems || 0}
     rowsPerPage={filters.pageSize || 0}
     page={filters.pageIndex - 1}
     onPageChange={(e, newPage) => {

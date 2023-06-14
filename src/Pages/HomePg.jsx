@@ -1,21 +1,21 @@
 import { Button, Pagination, TextField, Typography } from "@mui/material";
 import React, { useMemo, useState } from "react";
-
 import {toast} from "react-toastify";
 import { useEffect } from "react";
 import { defaultFilter } from "../utils/constant";
 import shared from "../utils/shared";
 import bookService from "../service/book.service";
 import categoryService from "../service/category.service";
-import { useAuthContext } from "../context/auth";
-import { useCartContext } from "../context/cart";
+import {useDispatch,useSelector} from "react-redux";
+import { fetchCartData } from "../state/slice/cartSlice";
 
 function HomePg() {
   const [filters, setFilters] = useState(defaultFilter);
   const [categories, setCategories] = useState([]);
   const [sortBy, setSortBy] = useState();
-  const authContext = useAuthContext();
-  const cartContext = useCartContext();
+  
+  const authData = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
   const [bookResponse, setBookResponse] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -64,12 +64,12 @@ function HomePg() {
   }, [categories, bookResponse]);
 
   const addToCart = (book) => {
-    shared.addToCart(book, authContext.user.id).then((res) => {
+    shared.addToCart(book, authData.id).then((res) => {
       if (res.error) {
         toast.error(res.message);
       } else {
         toast.success(res.message);
-        cartContext.updateCart();
+        dispatch(fetchCartData(authData.id));
       }
     });
   };

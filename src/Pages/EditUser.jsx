@@ -9,18 +9,18 @@ import {
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
   import userService from "../service/user.service";
-  import { useAuthContext } from "../context/auth";
+  import { useSelector } from "react-redux";
   import { useNavigate, useParams } from "react-router-dom";
   import { toast } from "react-toastify";
   import * as Yup from "yup";
   import { Formik } from "formik";
 
   function EditUser() {
+    const authData = useSelector((state) => state.auth.user);
     const [roles, setRoles] = useState([]);
     const [user, setUser] = useState();
     const {id} = useParams();
     const navigate = useNavigate();
-    const authContext = useAuthContext();
     const initialValues = {
     id: 0,
     email: "",
@@ -186,20 +186,20 @@ import {
                     {errors.email && touched.email && errors.email}
                   </div>
                 </FormControl>
-                {values.id !== authContext.user.id && (
+                {values.id !== authData.id && (
                   <div className="">
                     <FormControl
                       className="dropdown-wrapper"
                       variant="outlined"
-                      disabled={values.id === authContext.user.id}
+                      disabled={values.id === authData.id}
                     >
                       <InputLabel htmlFor="select">Roles</InputLabel>
                       <Select
                         name="roleId"
                         id={"roleId"}
                         onChange={handleChange}
-                        disabled={values.id === authContext.user.id}
-                        value={values.roleId}
+                        disabled={values.id === authData.id}
+                        value={Number(values.roleId)}
                       >
                         {roles.length > 0 &&
                           roles.map((role) => (

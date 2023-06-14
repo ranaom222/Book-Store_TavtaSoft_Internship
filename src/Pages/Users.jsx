@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuthContext } from "../context/auth";
+import { useSelector } from "react-redux";
 import userService from "../service/user.service";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ import {
 
 function Users() {
    
-  const authContext = useAuthContext();
+  const authData = useSelector((state) => state.auth.user);
   const [filters, setFilters] = useState(defaultFilter);
   const [userList, setUserList] = useState({
     pageIndex: 0,
@@ -54,16 +54,8 @@ function Users() {
   const columns = [
     { id: "firstName", label: "First Name", minWidth: 100 },
     { id: "lastName", label: "Last Name", minWidth: 100 },
-    {
-      id: "email",
-      label: "Email",
-      minWidth: 170,
-    },
-    {
-      id: "roleName",
-      label: "Role",
-      minWidth: 130,
-    },
+    { id: "email",label: "Email", minWidth: 170 },
+    { id: "roleName", label: "Role", minWidth: 130 },
   ];
 
   const onConfirmDelete = async () => {
@@ -161,7 +153,8 @@ function Users() {
                   >
                     <b>Edit</b>
                   </Button>
-                  {row.id !== authContext.user.id && (<Button
+                  {row.id !== authData.id && (
+                  <Button
                     variant="contained"
                     size="small"
                     color="error"
